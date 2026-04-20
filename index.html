@@ -1,9 +1,516 @@
+
 <!DOCTYPE html>
-<html>
-<body style="margin:0; display:flex; justify-content:center; align-items:center; height:100vh;">
-<audio autoplay>
-<source src="Sheep sound.mp3" type="audio/mpeg">
-</audio>
-<h1>🐑🔊 BEEEHHH...</h1>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🐑 BAAAA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@600;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --wool:   #f0f0f0;
+      --grass:  #5ecb4a;
+      --sky:    #b8eaff;
+      --pink:   #ffb6c8;
+      --dark:   #3a2e2e;
+      --accent: #ff7eb3;
+    }
+
+    body {
+      background: linear-gradient(180deg, #b8eaff 0%, #d6f5ff 45%, #5ecb4a 45%, #3fa82e 100%);
+      font-family: 'Nunito', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .sun {
+      position: fixed;
+      top: 32px; right: 60px;
+      width: 70px; height: 70px;
+      background: #ffe94a;
+      border-radius: 50%;
+      box-shadow: 0 0 0 14px rgba(255,233,74,0.25), 0 0 0 28px rgba(255,233,74,0.1);
+      animation: sunPulse 4s ease-in-out infinite;
+      z-index: 0;
+    }
+    @keyframes sunPulse {
+      0%,100% { box-shadow: 0 0 0 14px rgba(255,233,74,0.25), 0 0 0 28px rgba(255,233,74,0.1); }
+      50%      { box-shadow: 0 0 0 20px rgba(255,233,74,0.3), 0 0 0 40px rgba(255,233,74,0.12); }
+    }
+
+    .cloud {
+      position: fixed;
+      background: #fff;
+      border-radius: 999px;
+      opacity: 0.92;
+      animation: drift linear infinite;
+      z-index: 0;
+    }
+    @keyframes drift {
+      from { transform: translateX(-220px); }
+      to   { transform: translateX(110vw); }
+    }
+
+    .flowers {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 55%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .flower {
+      position: absolute;
+      bottom: 30px;
+      font-size: 1.5rem;
+      animation: sway 2.5s ease-in-out infinite alternate;
+      transform-origin: bottom center;
+    }
+    @keyframes sway {
+      from { transform: rotate(-8deg); }
+      to   { transform: rotate(8deg); }
+    }
+
+    .card {
+      position: relative;
+      z-index: 10;
+      background: rgba(255,255,255,0.84);
+      backdrop-filter: blur(8px);
+      border: 3px solid rgba(255,255,255,0.95);
+      border-radius: 36px;
+      padding: 44px 52px 38px;
+      text-align: center;
+      max-width: 480px;
+      width: 92vw;
+      box-shadow: 0 12px 60px rgba(58,46,46,0.13), 0 2px 0 #fff inset;
+      animation: cardBounce 0.7s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes cardBounce {
+      from { opacity:0; transform: scale(0.7) translateY(40px); }
+      to   { opacity:1; transform: scale(1)   translateY(0); }
+    }
+
+    .sheep-wrap {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+    .big-sheep {
+      font-size: 88px;
+      display: block;
+      animation: sheepBob 1.2s ease-in-out infinite alternate;
+      filter: drop-shadow(0 6px 18px rgba(58,46,46,0.15));
+      cursor: pointer;
+      user-select: none;
+    }
+    @keyframes sheepBob {
+      from { transform: translateY(0px) rotate(-3deg); }
+      to   { transform: translateY(-10px) rotate(3deg); }
+    }
+    .big-sheep:active { transform: scale(0.88) !important; }
+
+    .bubble-speech {
+      position: absolute;
+      top: -18px; right: -76px;
+      background: var(--wool);
+      border: 2.5px solid var(--dark);
+      border-radius: 16px;
+      padding: 5px 12px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1rem;
+      color: var(--dark);
+      white-space: nowrap;
+      opacity: 0;
+      transform: scale(0.6) translateY(10px);
+      transition: all 0.25s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+    }
+    .bubble-speech::before {
+      content: '';
+      position: absolute;
+      left: -10px; top: 50%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-right-color: var(--dark);
+    }
+    .bubble-speech.show {
+      opacity: 1;
+      transform: scale(1) translateY(0);
+    }
+
+    h1 {
+      font-family: 'Fredoka One', cursive;
+      font-size: clamp(2.2rem, 8vw, 3.2rem);
+      color: var(--dark);
+      letter-spacing: 0.03em;
+      margin-bottom: 4px;
+    }
+    h1 span { color: var(--grass); }
+
+    .subtitle {
+      color: #888;
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    .progress-section { margin-bottom: 18px; }
+    .progress-bg {
+      width: 100%;
+      height: 14px;
+      background: #e0e0e0;
+      border-radius: 99px;
+      cursor: pointer;
+      overflow: hidden;
+      border: 2px solid #ccc;
+    }
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: repeating-linear-gradient(
+        90deg,
+        var(--grass) 0px, var(--grass) 12px,
+        #3fa82e 12px, #3fa82e 24px
+      );
+      border-radius: 99px;
+      transition: width 0.3s linear;
+    }
+    .time-row {
+      display: flex; justify-content: space-between;
+      font-size: 0.75rem; color: #aaa; margin-top: 5px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .btn-play {
+      width: 64px; height: 64px;
+      border: none;
+      border-radius: 50%;
+      background: var(--grass);
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 6px 0 #3fa82e;
+      transition: transform 0.12s, box-shadow 0.12s;
+    }
+    .btn-play:hover { transform: translateY(-2px); box-shadow: 0 8px 0 #3fa82e; }
+    .btn-play:active { transform: translateY(3px); box-shadow: 0 2px 0 #3fa82e; }
+
+    .volume-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin-bottom: 26px;
+    }
+    .vol-icon { font-size: 1.1rem; cursor: pointer; }
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 120px; height: 6px;
+      background: #ddd;
+      border-radius: 99px;
+      outline: none; cursor: pointer;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--accent);
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+
+    .baa-counter {
+      background: linear-gradient(135deg, #fff5f8, #ffe8f0);
+      border: 2px solid var(--pink);
+      border-radius: 16px;
+      padding: 10px 18px;
+      margin-bottom: 24px;
+      font-size: 0.9rem;
+      color: var(--dark);
+    }
+    .baa-counter strong {
+      color: var(--accent);
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+    }
+
+    .gh-link {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: var(--dark);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 9px 20px;
+      border: 2px solid var(--dark);
+      border-radius: 99px;
+      background: var(--wool);
+      transition: background 0.2s, transform 0.15s;
+      box-shadow: 0 3px 0 var(--dark);
+    }
+    .gh-link:hover { background: var(--pink); transform: translateY(-2px); }
+    .gh-link:active { transform: translateY(1px); box-shadow: 0 1px 0 var(--dark); }
+    .gh-link svg { width: 16px; height: 16px; fill: currentColor; }
+
+    .fly-sheep {
+      position: fixed;
+      font-size: 2.2rem;
+      pointer-events: none;
+      z-index: 9999;
+      animation: flySheep 1.5s ease-out forwards;
+    }
+    @keyframes flySheep {
+      0%   { opacity:1; transform: translate(0,0) rotate(0deg) scale(1); }
+      100% { opacity:0; transform: translate(var(--dx), var(--dy)) rotate(var(--dr)) scale(0.3); }
+    }
+
+    .autoplay-nudge {
+      position: fixed; inset: 0;
+      background: rgba(184,234,255,0.75);
+      backdrop-filter: blur(4px);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      z-index: 200;
+    }
+    .nudge-box {
+      background: #fff;
+      border: 3px solid var(--dark);
+      border-radius: 28px;
+      padding: 40px 52px;
+      text-align: center;
+      box-shadow: 0 8px 0 var(--dark);
+      animation: nudgeBounce 0.6s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes nudgeBounce {
+      from { transform: scale(0.6); opacity:0; }
+      to   { transform: scale(1);   opacity:1; }
+    }
+    .nudge-sheep { font-size: 80px; display: block; animation: sheepBob 1s ease-in-out infinite alternate; }
+    .nudge-title { font-family: 'Fredoka One', cursive; font-size: 2rem; color: var(--dark); margin: 10px 0 6px; }
+    .nudge-sub { color: #888; font-size: 0.9rem; margin-bottom: 24px; }
+    .nudge-btn {
+      background: var(--grass);
+      color: #fff;
+      border: none;
+      border-radius: 99px;
+      padding: 14px 36px;
+      font-family: 'Fredoka One', cursive;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: 0 5px 0 #3fa82e;
+      transition: transform 0.12s;
+    }
+    .nudge-btn:hover { transform: translateY(-2px); }
+    .nudge-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #3fa82e; }
+  </style>
+</head>
+<body>
+
+  <!-- Autoplay nudge (shown if browser blocks autoplay) -->
+  <div class="autoplay-nudge" id="nudge">
+    <div class="nudge-box">
+      <span class="nudge-sheep">🐑</span>
+      <p class="nudge-title">Ready to BAAAA?</p>
+      <p class="nudge-sub">Click below to start the sheep 🎶</p>
+      <button class="nudge-btn" id="nudgeBtn">🐑 LET IT BAAAA</button>
+    </div>
+  </div>
+
+  <div class="sun"></div>
+  <div class="flowers" id="flowers"></div>
+
+  <div class="card">
+    <div class="sheep-wrap">
+      <span class="big-sheep" id="mainSheep">🐑</span>
+      <div class="bubble-speech" id="speech">BAAAA!</div>
+    </div>
+
+    <h1>The <span>Sheep</span> Site</h1>
+    <p class="subtitle">The sheep shall BAAAA 🌿</p>
+
+    <div class="progress-section">
+      <div class="progress-bg" id="progressBg">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+      <div class="time-row">
+        <span id="timeNow">0:00</span>
+        <span id="timeTotal">0:00</span>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button class="btn-play" id="playBtn">▶</button>
+    </div>
+
+    <div class="volume-row">
+      <span class="vol-icon" id="muteBtn">🔊</span>
+      <input type="range" id="volSlider" min="0" max="1" step="0.01" value="0.85"/>
+    </div>
+
+    <div class="baa-counter">
+      🐑 Times this sheep has baaa'd: <strong id="baaCount">0</strong>
+    </div>
+
+    <a class="gh-link" href="https://github.com/YOUR-USERNAME/YOUR-REPO" target="_blank" id="ghLink">
+      <svg viewBox="0 0 24 24"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+      View on GitHub
+    </a>
+  </div>
+
+  <!-- Point src at your MP3 file — name it sheep.mp3 and put it in the same folder -->
+  <audio id="player" loop src="Sheep sound.mp3"></audio>
+
+  <script>
+    /* Clouds */
+    [{w:140,h:44,top:'8%',delay:'0s',dur:'28s'},
+     {w:100,h:32,top:'18%',delay:'10s',dur:'22s'},
+     {w:170,h:52,top:'5%',delay:'5s',dur:'35s'},
+     {w:90,h:28,top:'24%',delay:'18s',dur:'20s'}
+    ].forEach(c => {
+      const el = document.createElement('div');
+      el.className = 'cloud';
+      el.style.cssText = `width:${c.w}px;height:${c.h}px;top:${c.top};left:-220px;animation-duration:${c.dur};animation-delay:${c.delay}`;
+      document.body.appendChild(el);
+    });
+
+    /* Flowers */
+    const flowersEl = document.getElementById('flowers');
+    ['🌸','🌼','🌻','🌺','🌷','💐'].forEach((em) => {
+      for (let j = 0; j < 3; j++) {
+        const f = document.createElement('div');
+        f.className = 'flower';
+        f.textContent = em;
+        f.style.left = (Math.random()*96) + '%';
+        f.style.fontSize = (Math.random()*0.8+1.1) + 'rem';
+        f.style.animationDuration = (Math.random()*1.5+1.8) + 's';
+        f.style.animationDelay    = (Math.random()*2) + 's';
+        flowersEl.appendChild(f);
+      }
+    });
+
+    /* Audio */
+    const player    = document.getElementById('player');
+    const playBtn   = document.getElementById('playBtn');
+    const fill      = document.getElementById('progressFill');
+    const progressBg= document.getElementById('progressBg');
+    const timeNow   = document.getElementById('timeNow');
+    const timeTotal = document.getElementById('timeTotal');
+    const volSlider = document.getElementById('volSlider');
+    const muteBtn   = document.getElementById('muteBtn');
+    const baaCount  = document.getElementById('baaCount');
+    const mainSheep = document.getElementById('mainSheep');
+    const speech    = document.getElementById('speech');
+    const nudge     = document.getElementById('nudge');
+    const nudgeBtn  = document.getElementById('nudgeBtn');
+
+    let playing = false;
+    let baaTotal = 0;
+    player.volume = 0.85;
+
+    function fmt(s) {
+      if (isNaN(s)) return '0:00';
+      return Math.floor(s/60) + ':' + String(Math.floor(s%60)).padStart(2,'0');
+    }
+
+    function dismissNudge() {
+      nudge.style.transition = 'opacity 0.35s';
+      nudge.style.opacity = '0';
+      setTimeout(() => nudge.remove(), 380);
+    }
+
+    function setPlaying(state) {
+      playing = state;
+      playBtn.textContent = state ? '⏸' : '▶';
+      if (state) {
+        player.play().catch(() => {});
+      } else {
+        player.pause();
+      }
+    }
+
+    /* Try autoplay immediately */
+    player.play().then(() => {
+      playing = true;
+      playBtn.textContent = '⏸';
+      dismissNudge();
+    }).catch(() => {
+      /* Autoplay blocked — nudge stays visible */
+    });
+
+    /* Nudge button — user gesture unlocks audio */
+    nudgeBtn.addEventListener('click', () => {
+      dismissNudge();
+      setPlaying(true);
+    });
+
+    playBtn.addEventListener('click', () => setPlaying(!playing));
+
+    player.addEventListener('play', () => { baaTotal++; baaCount.textContent = baaTotal; });
+
+    player.addEventListener('timeupdate', () => {
+      if (!player.duration) return;
+      fill.style.width = (player.currentTime / player.duration * 100) + '%';
+      timeNow.textContent   = fmt(player.currentTime);
+      timeTotal.textContent = fmt(player.duration);
+    });
+
+    progressBg.addEventListener('click', e => {
+      if (!player.duration) return;
+      const r = progressBg.getBoundingClientRect();
+      player.currentTime = ((e.clientX - r.left) / r.width) * player.duration;
+    });
+
+    volSlider.addEventListener('input', () => {
+      player.volume = volSlider.value;
+      muteBtn.textContent = volSlider.value == 0 ? '🔇' : volSlider.value < 0.5 ? '🔉' : '🔊';
+    });
+    muteBtn.addEventListener('click', () => {
+      player.muted = !player.muted;
+      muteBtn.textContent = player.muted ? '🔇' : '🔊';
+    });
+
+    /* Clickable sheep */
+    const baaPhrases = ['BAAAA! 🐑','MEEEEH!','BAA BAA!','*fleecy*','WOOOOL!','BAAAA~','...baa?'];
+    mainSheep.addEventListener('click', e => {
+      speech.textContent = baaPhrases[Math.floor(Math.random()*baaPhrases.length)];
+      speech.classList.remove('show');
+      void speech.offsetWidth;
+      speech.classList.add('show');
+      setTimeout(() => speech.classList.remove('show'), 1400);
+
+      for (let i = 0; i < 6; i++) {
+        const s = document.createElement('div');
+        s.className = 'fly-sheep';
+        s.textContent = '🐑';
+        s.style.left = e.clientX + 'px';
+        s.style.top  = e.clientY + 'px';
+        const angle = Math.random() * Math.PI * 2;
+        const dist  = Math.random() * 160 + 80;
+        s.style.setProperty('--dx', Math.cos(angle)*dist + 'px');
+        s.style.setProperty('--dy', Math.sin(angle)*dist + 'px');
+        s.style.setProperty('--dr', (Math.random()*360-180) + 'deg');
+        s.style.animationDelay = (Math.random()*0.2) + 's';
+        document.body.appendChild(s);
+        setTimeout(() => s.remove(), 1700);
+      }
+    });
+
+    /* GitHub placeholder check */
+    document.getElementById('ghLink').addEventListener('click', e => {
+      if (e.currentTarget.href.includes('antiquecountrybg-svg')) {
+        e.preventDefault();
+        alert('✏️ Open the HTML file and replace YOUR-USERNAME/YOUR-REPO in the GitHub link!');
+      }
+    });
+  </script>
 </body>
 </html>
